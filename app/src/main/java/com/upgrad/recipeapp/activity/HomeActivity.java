@@ -1,7 +1,9 @@
-package com.upgrad.recipeapp;
+package com.upgrad.recipeapp.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.upgrad.recipeapp.R;
 
 public class HomeActivity extends AppCompatActivity {
 
