@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RecipeApp</string>
+    <string name="no_recipe_found">No recipe found :(</string>
+    <string name="network_error">Network error(</string>
+    <string name="search_recipe">search recipes...</string>
+    <string name="query_hint">cakes, pasta, sauce...</string>
 </resources>
