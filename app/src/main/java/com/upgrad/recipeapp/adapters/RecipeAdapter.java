@@ -6,8 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.upgrad.recipeapp.R;
 import com.upgrad.recipeapp.model.Recipe;
 
@@ -32,7 +34,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder recipeViewHolder, int position) {
         Recipe recipe = recipeList.get(position);
+
         recipeViewHolder.recipeName.setText(recipe.strMeal);
+        Glide.with(context).load(recipe.strMealThumb).into(recipeViewHolder.recipeImage);
+        recipeViewHolder.recipeType.setText(" "+recipe.strCategory + ", "+recipe.strArea);
+
     }
 
     @Override
@@ -49,10 +55,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public class RecipeViewHolder extends RecyclerView.ViewHolder {
 
         private TextView recipeName;
+        private ImageView recipeImage;
+        private TextView recipeType;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
             recipeName = itemView.findViewById(R.id.recipeNameTV);
+            recipeImage = itemView.findViewById(R.id.recipeImage);
+            recipeType = itemView.findViewById(R.id.typeTextView);
         }
     }
 }

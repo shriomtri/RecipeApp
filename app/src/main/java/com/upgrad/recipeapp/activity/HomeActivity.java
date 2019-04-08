@@ -77,6 +77,11 @@ public class HomeActivity extends AppCompatActivity {
         new FetchTask().execute(query);
     }
 
+    public void expand(View view) {
+        //this will expand the search view when user click anywhere on searchView
+        searchView.onActionViewExpanded();
+    }
+
     class FetchTask extends AsyncTask<String, Void, String>{
 
         @Override
