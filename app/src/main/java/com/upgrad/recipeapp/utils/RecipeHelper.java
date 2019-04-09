@@ -48,7 +48,7 @@ public class RecipeHelper {
     }
 
     public static String[] getSteps(Recipe recipe){
-        return recipe.getStrInstructions().split(".");
+        return recipe.getStrInstructions().split("\\.");
     }
 
 }

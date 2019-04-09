@@ -11,15 +11,17 @@ import android.widget.VideoView;
 
 import com.upgrad.recipeapp.R;
 import com.upgrad.recipeapp.adapters.IngredientAdapter;
+import com.upgrad.recipeapp.adapters.ProcedureAdapter;
 import com.upgrad.recipeapp.model.Recipe;
 import com.upgrad.recipeapp.utils.RecipeHelper;
 
 public class DetailActivity extends AppCompatActivity {
 
     private Recipe recipe;
-    private RecyclerView ingredientList, stepsList;
+    private RecyclerView ingredientList, procedureList;
 
     private IngredientAdapter ingredientAdapter;
+    private ProcedureAdapter procedureAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +39,11 @@ public class DetailActivity extends AppCompatActivity {
         ingredientAdapter = new IngredientAdapter(this, RecipeHelper.getIngredient(recipe));
         ingredientList.setAdapter(ingredientAdapter);
 
-        stepsList = findViewById(R.id.stepsList);
-        stepsList.setLayoutManager(new LinearLayoutManager(this));
+        procedureList = findViewById(R.id.stepsList);
+        procedureList.setLayoutManager(new LinearLayoutManager(this));
+        procedureAdapter = new ProcedureAdapter(this, RecipeHelper.getSteps(recipe));
+        procedureList.setAdapter(procedureAdapter);
+        procedureList.setNestedScrollingEnabled(false);
 
     }
 }
