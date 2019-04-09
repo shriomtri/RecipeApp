@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.upgrad.recipeapp.R;
 import com.upgrad.recipeapp.model.Recipe;
+import com.upgrad.recipeapp.utils.RecipeListener;
 
 import java.util.List;
 
@@ -19,9 +20,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     private List<Recipe> recipeList;
     private Context context;
+    private RecipeListener recipeListener;
 
     public RecipeAdapter(Context context) {
         this.context = context;
+        this.recipeListener = (RecipeListener) context;
     }
 
     @NonNull
@@ -33,11 +36,19 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder recipeViewHolder, int position) {
-        Recipe recipe = recipeList.get(position);
 
-        recipeViewHolder.recipeName.setText(recipe.strMeal);
-        Glide.with(context).load(recipe.strMealThumb).into(recipeViewHolder.recipeImage);
-        recipeViewHolder.recipeType.setText(" "+recipe.strCategory + ", "+recipe.strArea);
+        final Recipe recipe = recipeList.get(position);
+
+        recipeViewHolder.recipeName.setText(recipe.getStrMeal());
+        Glide.with(context).load(recipe.getStrMealThumb()).into(recipeViewHolder.recipeImage);
+        recipeViewHolder.recipeType.setText(" "+recipe.getStrCategory() + ", "+recipe.getStrArea());
+
+        recipeViewHolder.recipeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeListener.recipeClicked(recipe);
+            }
+        });
 
     }
 

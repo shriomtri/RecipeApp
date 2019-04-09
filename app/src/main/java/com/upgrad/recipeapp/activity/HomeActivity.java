@@ -1,5 +1,6 @@
 package com.upgrad.recipeapp.activity;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.upgrad.recipeapp.R;
 import com.upgrad.recipeapp.adapters.RecipeAdapter;
 import com.upgrad.recipeapp.model.Recipe;
 import com.upgrad.recipeapp.utils.NetworkFetcher;
+import com.upgrad.recipeapp.utils.RecipeListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements RecipeListener {
 
     private RecyclerView recipeList;
     private ProgressBar progressBar;
@@ -77,9 +79,50 @@ public class HomeActivity extends AppCompatActivity {
         new FetchTask().execute(query);
     }
 
+    private void updateList(List<Recipe> list) {
+
+        progressBar.setVisibility(View.GONE);
+        stateTextView.setVisibility(View.GONE);
+        recipeList.setVisibility(View.VISIBLE);
+        adapter.updateList(list);
+
+    }
+
     public void expand(View view) {
         //this will expand the search view when user click anywhere on searchView
         searchView.onActionViewExpanded();
+    }
+
+    private void setState(int i) {
+
+        stateTextView.setVisibility(View.VISIBLE);
+        recipeList.setVisibility(View.GONE);
+
+        switch (i){
+            case 0: //Network error
+                stateTextView.setText(getResources().getString(R.string.network_error));
+                break;
+            case 1: //result length zero
+                stateTextView.setText(getResources().getString(R.string.no_recipe_found));
+                break;
+        }
+    }
+
+    private void showToast(String message) {
+
+        if (toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
+
+    }
+
+    @Override
+    public void recipeClicked(Recipe recipe) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("recipe", recipe);
+        startActivity(intent);
     }
 
     class FetchTask extends AsyncTask<String, Void, String>{
@@ -131,39 +174,6 @@ public class HomeActivity extends AppCompatActivity {
 
         }
 
-    }
-
-    private void updateList(List<Recipe> list) {
-
-        progressBar.setVisibility(View.GONE);
-        stateTextView.setVisibility(View.GONE);
-        recipeList.setVisibility(View.VISIBLE);
-        adapter.updateList(list);
-
-    }
-
-    private void setState(int i) {
-
-        stateTextView.setVisibility(View.VISIBLE);
-        recipeList.setVisibility(View.GONE);
-
-        switch (i){
-            case 0: //Network error
-                stateTextView.setText(getResources().getString(R.string.network_error));
-                break;
-            case 1: //result length zero
-                stateTextView.setText(getResources().getString(R.string.no_recipe_found));
-                break;
-        }
-    }
-
-    private void showToast(String message) {
-
-        if (toast != null) {
-            toast.cancel();
-        }
-        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        toast.show();
 
     }
 }
