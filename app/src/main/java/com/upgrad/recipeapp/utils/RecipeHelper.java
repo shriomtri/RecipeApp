@@ -39,7 +39,7 @@ public class RecipeHelper {
         //filtering empty items from final list
         for(int i=0, size = ingredientList.size(); i<size; i++){
             Ingredient ingredient = ingredientList.get(i);
-            if(!ingredient.getName().equals("") || ingredient.getName().length() > 0){
+            if(ingredient.getName() != null && (!ingredient.getName().equals("") || ingredient.getName().length() > 0)){
                 ingredients.add(ingredient);
             }
         }
