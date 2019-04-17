@@ -6,4 +6,9 @@
     <string name="query_hint">cakes, pasta, sauce…</string>
     <string name="recipe_image">Recipe image</string>
     <string name="type">Type: </string>
+    <string name="categories">CATEGORIES</string>
+    <string name="latest">LATEST</string>
+    <string name="action_menu_refresh">Refresh</string>
+    <string name="actioin_menu_search">Search</string>
+    <string name="procedure">Procedure</string>
 </resources>

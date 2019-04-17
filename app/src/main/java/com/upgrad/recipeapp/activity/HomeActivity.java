@@ -6,174 +6,157 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.SearchView;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.upgrad.recipeapp.R;
-import com.upgrad.recipeapp.adapters.RecipeAdapter;
+import com.upgrad.recipeapp.adapters.CategoryAdapter;
+import com.upgrad.recipeapp.adapters.LatestAdapter;
+import com.upgrad.recipeapp.model.Category;
 import com.upgrad.recipeapp.model.Recipe;
 import com.upgrad.recipeapp.utils.NetworkFetcher;
-import com.upgrad.recipeapp.utils.RecipeListener;
+import com.upgrad.recipeapp.utils.URL;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements RecipeListener {
+public class HomeActivity extends AppCompatActivity {
 
-    private RecyclerView recipeList;
-    private ProgressBar progressBar;
-    private SearchView searchView;
-    private TextView stateTextView;
-
-    private Toast toast;
-    private RecipeAdapter adapter;
-
-    private static final String URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+    private RecyclerView categoryList, latestList;
+    private CategoryAdapter categoryAdapter;
+    private LatestAdapter latestAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_home);
 
-        progressBar = findViewById(R.id.progressIndicator);
-        searchView = findViewById(R.id.searchView);
-        stateTextView = findViewById(R.id.stateTV);
-
-        recipeList = findViewById(R.id.recipeList);
-        recipeList.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new RecipeAdapter(this);
-        recipeList.setAdapter(adapter);
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (query.trim().length() > 3) {
-                    findRecipe(query.trim());
-                } else {
-                    showToast("Please insert valid name.");
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                //not required
-                return false;
-            }
-        });
-    }
-
-    private void findRecipe(String query) {
-        new FetchTask().execute(query);
-    }
-
-    private void updateList(List<Recipe> list) {
-
-        progressBar.setVisibility(View.GONE);
-        stateTextView.setVisibility(View.GONE);
-        recipeList.setVisibility(View.VISIBLE);
-        adapter.updateList(list);
-
-    }
-
-    public void expand(View view) {
-        //this will expand the search view when user click anywhere on searchView
-        searchView.onActionViewExpanded();
-    }
-
-    private void setState(int i) {
-
-        stateTextView.setVisibility(View.VISIBLE);
-        recipeList.setVisibility(View.GONE);
-
-        switch (i){
-            case 0: //Network error
-                stateTextView.setText(getResources().getString(R.string.network_error));
-                break;
-            case 1: //result length zero
-                stateTextView.setText(getResources().getString(R.string.no_recipe_found));
-                break;
-        }
-    }
-
-    private void showToast(String message) {
-
-        if (toast != null) {
-            toast.cancel();
-        }
-        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        toast.show();
+        categoryAdapter = new CategoryAdapter(this);
+        latestAdapter = new LatestAdapter(this);
+        setUpList();
+        fetchData();
 
     }
 
     @Override
-    public void recipeClicked(Recipe recipe) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("recipe", recipe);
-        startActivity(intent);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.action_menu, menu);
+        return true;
     }
 
-    class FetchTask extends AsyncTask<String, Void, String>{
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                Intent intent = new Intent(HomeActivity.this, SearchActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_refresh:
+                fetchData();
+                break;
+        }
+
+        return true;
+    }
+
+    private void setUpList() {
+
+        categoryList = findViewById(R.id.categoriesList);
+        categoryList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        categoryList.setAdapter(categoryAdapter);
+
+        latestList = findViewById(R.id.latestList);
+        latestList.setLayoutManager(new LinearLayoutManager(this));
+        latestList.setNestedScrollingEnabled(false);
+        latestList.setAdapter(latestAdapter);
+
+    }
+
+    private void fetchData() {
+        new FetchTask().execute("category", URL.CATEGORIES, "");
+        new FetchTask().execute("latest", URL.LATEST, "");
+    }
+
+    private class FetchTask extends AsyncTask<String, Void, String[]> {
+
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            progressBar.setVisibility(View.VISIBLE);
-            stateTextView.setVisibility(View.GONE);
+        protected String[] doInBackground(String... strings) {
+            String type = strings[0];
+            String url = strings[1];
+            String query = strings[2];
+            String response = NetworkFetcher.makeServiceCall(url + query);
+            return new String[]{type, response};
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected void onPostExecute(String[] strings) {
+            super.onPostExecute(strings);
 
-            String query = strings[0].trim();
-            String fetchURL = URL+query;
-            return NetworkFetcher.makeServiceCall(fetchURL);
-        }
+            String response = strings[1];
+            if (strings[0].equals("category")) {
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+                if (response != null && response.length() > 0) {
+                    try {
+                        List<Category> categories = new ArrayList<>();
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray categoryArray = jsonObject.getJSONArray("categories");
 
-            progressBar.setVisibility(View.GONE);
-            if(s == null || s.length() == 0){
-                setState(0);
-            }else{
-                try {
-
-                    JSONObject jsonObject = new JSONObject(s);
-                    JSONArray meals = jsonObject.getJSONArray("meals");
-
-                    if(meals.length() > 0){
-                        Gson gson = new Gson();
-                        List<Recipe> recipeList = new ArrayList<>();
-                        for(int i = 0; i < meals.length(); i++){
-                            recipeList.add(gson.fromJson(meals.get(i).toString(), Recipe.class));
+                        for (int i = 0, size = categoryArray.length(); i < size; i++) {
+                            Gson gson = new Gson();
+                            categories.add(gson.fromJson(categoryArray.get(i).toString(), Category.class));
                         }
-                        updateList(recipeList);
+
+                        categoryAdapter.updateList(categories);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    showToast("Please refresh, error occurred");
+                }
+
+            } else if (strings[0].equals("latest")) {
+
+                if (response != null && response.length() > 0) {
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray meals = jsonObject.getJSONArray("meals");
+
+                        if (meals.length() > 0) {
+                            Gson gson = new Gson();
+                            List<Recipe> recipeList = new ArrayList<>();
+                            for (int i = 0; i < meals.length(); i++) {
+                                recipeList.add(gson.fromJson(meals.get(i).toString(), Recipe.class));
+                            }
+                            latestAdapter.updateList(recipeList);
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
-                }catch (JSONException e) {
-                    e.printStackTrace();
-                    //This will get called when value at meals is null.
-                    setState(1);
+                } else {
+                    showToast("Please refresh, error occurred");
                 }
+
             }
 
         }
+    }
 
-
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
