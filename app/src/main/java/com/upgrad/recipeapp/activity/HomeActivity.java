@@ -18,7 +18,9 @@ import com.upgrad.recipeapp.adapters.CategoryAdapter;
 import com.upgrad.recipeapp.adapters.LatestAdapter;
 import com.upgrad.recipeapp.model.Category;
 import com.upgrad.recipeapp.model.Recipe;
+import com.upgrad.recipeapp.utils.CategoryListener;
 import com.upgrad.recipeapp.utils.NetworkFetcher;
+import com.upgrad.recipeapp.utils.RecipeListener;
 import com.upgrad.recipeapp.utils.URL;
 
 import org.json.JSONArray;
@@ -28,7 +30,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements RecipeListener, CategoryListener {
 
     private RecyclerView categoryList, latestList;
     private CategoryAdapter categoryAdapter;
@@ -85,6 +87,24 @@ public class HomeActivity extends AppCompatActivity {
     private void fetchData() {
         new FetchTask().execute("category", URL.CATEGORIES, "");
         new FetchTask().execute("latest", URL.LATEST, "");
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void categoryClicked(Category category) {
+        Intent intent = new Intent(this, CategoryDetail.class);
+        intent.putExtra("category_name", category.getStrCategory());
+        startActivity(intent);
+    }
+
+    @Override
+    public void recipeClicked(Recipe recipe) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("recipe", recipe);
+        startActivity(intent);
     }
 
     private class FetchTask extends AsyncTask<String, Void, String[]> {
@@ -154,9 +174,5 @@ public class HomeActivity extends AppCompatActivity {
             }
 
         }
-    }
-
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

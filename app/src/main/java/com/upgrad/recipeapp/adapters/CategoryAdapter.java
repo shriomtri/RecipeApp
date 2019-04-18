@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.upgrad.recipeapp.R;
 import com.upgrad.recipeapp.model.Category;
+import com.upgrad.recipeapp.utils.CategoryListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,12 @@ import java.util.List;
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
     private Context context;
+    private CategoryListener categoryListener;
     private List<Category> categoryList = new ArrayList<>();
 
     public CategoryAdapter(Context context) {
         this.context = context;
+        this.categoryListener = (CategoryListener) context;
     }
 
     @NonNull
@@ -35,9 +38,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder categoryViewHolder, int i) {
 
-        Category category = categoryList.get(i);
+        final Category category = categoryList.get(i);
         Glide.with(context).load(category.getStrCategoryThumb()).into(categoryViewHolder.categoryImage);
         categoryViewHolder.categoryName.setText(category.getStrCategory());
+
+        categoryViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                categoryListener.categoryClicked(category);
+            }
+        });
 
     }
 

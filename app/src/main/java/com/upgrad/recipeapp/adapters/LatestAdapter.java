@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.upgrad.recipeapp.R;
 import com.upgrad.recipeapp.model.Recipe;
+import com.upgrad.recipeapp.utils.RecipeListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,13 @@ import java.util.List;
 public class LatestAdapter extends RecyclerView.Adapter<LatestAdapter.LatestViewHolder> {
 
     private Context context;
+    private RecipeListener recipeListener;
     private List<Recipe> recipeList = new ArrayList<>();
+
 
     public LatestAdapter(Context context) {
         this.context = context;
+        recipeListener = (RecipeListener) context;
     }
 
     @NonNull
@@ -35,12 +39,18 @@ public class LatestAdapter extends RecyclerView.Adapter<LatestAdapter.LatestView
     @Override
     public void onBindViewHolder(@NonNull LatestViewHolder latestViewHolder, int i) {
 
-        Recipe recipe = recipeList.get(i);
+        final Recipe recipe = recipeList.get(i);
 
         Glide.with(context).load(recipe.getStrMealThumb()).into(latestViewHolder.recipeImage);
         latestViewHolder.nameTextView.setText(recipe.getStrMeal());
         latestViewHolder.areaTextView.setText(recipe.getStrArea());
 
+        latestViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeListener.recipeClicked(recipe);
+            }
+        });
     }
 
     @Override

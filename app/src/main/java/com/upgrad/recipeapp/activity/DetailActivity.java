@@ -1,5 +1,6 @@
 package com.upgrad.recipeapp.activity;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -29,6 +30,8 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         recipe = (Recipe) getIntent().getSerializableExtra("recipe");
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(recipe.getStrMeal());
         setUpList();
     }
 
